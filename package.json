@@ -1,0 +1,17 @@
+{
+  "name": "lbot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "LinkedIn automation CLI for auth bootstrap and post publishing",
+  "bin": {
+    "lbot": "./src/cli.js"
+  },
+  "scripts": {
+    "post": "node src/cli.js post",
+    "me": "node src/cli.js me",
+    "auth:url": "node src/cli.js auth-url"
+  },
+  "dependencies": {
+    "commander": "^14.0.3"
+  }
+}

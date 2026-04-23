@@ -1,6 +1,14 @@
+import { readFile } from 'fs/promises';
+import { extname } from 'path';
 import { loadApiConfig } from './credentials.js';
 
 const API_BASE_URL = 'https://api.linkedin.com';
+const IMAGE_MIME_TYPES = new Map([
+    ['.jpg', 'image/jpeg'],
+    ['.jpeg', 'image/jpeg'],
+    ['.png', 'image/png'],
+    ['.gif', 'image/gif'],
+]);
 
 export class LinkedInClient {
     constructor(config = {}) {
@@ -47,6 +55,27 @@ export class LinkedInClient {
         return payload;
     }
 
+    async uploadBinary(uploadUrl, { filePath, contentType }) {
+        if (!this.accessToken) {
+            throw new Error('Missing credentials: LINKEDIN_ACCESS_TOKEN');
+        }
+
+        const fileBuffer = await readFile(filePath);
+        const response = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+                ...(contentType ? { 'Content-Type': contentType } : {}),
+            },
+            body: fileBuffer,
+        });
+
+        const text = await response.text();
+        if (!response.ok) {
+            throw new Error(`LinkedIn image upload failed (${response.status}): ${text || '<empty response>'}`);
+        }
+    }
+
     async getUserInfo() {
         return this.request('GET', '/v2/userinfo');
     }
@@ -72,6 +101,65 @@ export class LinkedInClient {
                     feedDistribution: 'MAIN_FEED',
                     targetEntities: [],
                     thirdPartyDistributionChannels: [],
+                },
+                lifecycleState: 'PUBLISHED',
+                isReshareDisabledByAuthor: false,
+            },
+            raw: true,
+        });
+
+        return {
+            id: response.headers.get('x-restli-id') || null,
+            data: response.body,
+        };
+    }
+
+    async initializeImageUpload({ owner }) {
+        return this.request('POST', '/rest/images?action=initializeUpload', {
+            body: {
+                initializeUploadRequest: {
+                    owner,
+                },
+            },
+        });
+    }
+
+    async uploadImage({ owner, filePath }) {
+        const extension = extname(filePath).toLowerCase();
+        const contentType = IMAGE_MIME_TYPES.get(extension);
+        if (!contentType) {
+            throw new Error(`Unsupported image type for LinkedIn upload: ${extension || '<none>'}. Supported: .jpg, .jpeg, .png, .gif`);
+        }
+
+        const initialized = await this.initializeImageUpload({ owner });
+        const uploadUrl = initialized?.value?.uploadUrl;
+        const imageUrn = initialized?.value?.image;
+        if (!uploadUrl || !imageUrn) {
+            throw new Error(`LinkedIn image initializeUpload returned an unexpected payload: ${JSON.stringify(initialized)}`);
+        }
+
+        await this.uploadBinary(uploadUrl, { filePath, contentType });
+        return {
+            imageUrn,
+        };
+    }
+
+    async createImagePost({ author, commentary, imageUrn, altText, visibility = 'PUBLIC' }) {
+        const response = await this.request('POST', '/rest/posts', {
+            body: {
+                author,
+                commentary,
+                visibility,
+                distribution: {
+                    feedDistribution: 'MAIN_FEED',
+                    targetEntities: [],
+                    thirdPartyDistributionChannels: [],
+                },
+                content: {
+                    media: {
+                        ...(altText ? { altText } : {}),
+                        id: imageUrn,
+                    },
                 },
                 lifecycleState: 'PUBLISHED',
                 isReshareDisabledByAuthor: false,

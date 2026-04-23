@@ -129,12 +129,19 @@ Add that as `LINKEDIN_PERSON_URN` if you want deterministic posting without disc
 node src/cli.js post "hello from lbot"
 ```
 
+Optional single-image post:
+
+```bash
+node src/cli.js post --image /absolute/path/to/test.png --alt-text "Short description of the image" "hello from lbot"
+```
+
 ## Verification Checklist
 
 - `auth-url` prints a valid LinkedIn consent URL
 - `exchange-code` returns an access token
 - `me` returns the authenticated member identity
 - `post` creates a text post through `/rest/posts`
+- `post --image ...` initializes an image upload, uploads the file, and creates a single-image post through `/rest/posts`
 
 ## Likely Failure Modes
 
@@ -169,7 +176,7 @@ If `/v2/userinfo` does not provide a usable `sub`, set `LINKEDIN_PERSON_URN` man
 Start with:
 
 1. personal-profile posting
-2. text-only posts
+2. text-first posting, then single-image posts
 3. explicit local env storage in `georgerepo/.tokens/linkedin.env`
 
-Do not start with image posts or org posting unless the plain member-write path is already verified.
+Do not start with org posting until the member-write path is already verified.

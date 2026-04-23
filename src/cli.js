@@ -86,6 +86,8 @@ program
     .description('Publish a text post via the official LinkedIn Posts API')
     .option('--author <urn>', 'Explicit author URN, defaults to LINKEDIN_PERSON_URN or /v2/userinfo')
     .option('--organization', 'Post as LINKEDIN_ORGANIZATION_URN instead of the member URN')
+    .option('--image <path>', 'Attach a local JPG, JPEG, PNG, or GIF image to the post')
+    .option('--alt-text <text>', 'Accessibility alt text for an attached image')
     .option('--visibility <value>', 'Visibility enum', 'PUBLIC')
     .action(async (text, options) => {
         try {
@@ -104,11 +106,27 @@ program
                 author = await client.getResolvedAuthorUrn();
             }
 
-            const result = await client.createTextPost({
-                author,
-                commentary: text,
-                visibility: options.visibility,
-            });
+            let result;
+            if (options.image) {
+                const { imageUrn } = await client.uploadImage({
+                    owner: author,
+                    filePath: options.image,
+                });
+                result = await client.createImagePost({
+                    author,
+                    commentary: text,
+                    imageUrn,
+                    altText: options.altText,
+                    visibility: options.visibility,
+                });
+                console.log(`Uploaded image: ${imageUrn}`);
+            } else {
+                result = await client.createTextPost({
+                    author,
+                    commentary: text,
+                    visibility: options.visibility,
+                });
+            }
 
             console.log(`Posted successfully. Author: ${author}`);
             if (result.id) {

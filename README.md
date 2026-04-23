@@ -4,7 +4,7 @@ doc_id: "lbot/README"
 doc_type: "readme"
 doc_status: "active"
 title: "lbot — LinkedIn Automation Client"
-description: "Official LinkedIn posting CLI for auth bootstrap and text publishing."
+description: "Official LinkedIn posting CLI for auth bootstrap, text posts, and single-image posts."
 memory_eligible: false
 memory_priority: "low"
 doc_tags:
@@ -91,6 +91,12 @@ Post as your personal profile:
 node src/cli.js post "hello from lbot"
 ```
 
+Post with a single image:
+
+```bash
+node src/cli.js post --image /absolute/path/to/image.png --alt-text "Screenshot of the workflow" "hello from lbot"
+```
+
 Post as an organization:
 
 ```bash
@@ -109,11 +115,12 @@ node src/cli.js env
 - exchange auth codes for access tokens
 - inspect token-backed identity through `/v2/userinfo`
 - publish text posts through the official Posts API
+- upload a single image through the official Images API and attach it to a post
 
 ## What Is Intentionally Missing
 
 - browser automation fallback
-- image/document upload flows
+- document upload flows
 - generic feed-reading commands like `xbot home`
 
 Those are possible later, but LinkedIn’s access model is much tighter than X and not all read surfaces are broadly available.

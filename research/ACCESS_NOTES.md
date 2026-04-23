@@ -31,7 +31,6 @@ doc_tags:
 
 ## Near-term extension ideas
 
-- image upload support
 - document/carousel support
 - organization/page posting helper
 - local callback server for OAuth code capture

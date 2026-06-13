@@ -21,6 +21,14 @@ Modeled after `xbot`, but the access model is different:
 - the write API is available, but app setup and scopes are stricter than X
 - member reading is limited; this repo starts with identity inspection plus write flows
 
+## Status
+
+This repo is runnable for the intended operator path:
+
+- OAuth bootstrap
+- identity inspection
+- official text and image posting
+
 ## Architecture
 
 ```text
@@ -42,6 +50,13 @@ lbot/
 
 ```bash
 npm install
+```
+
+## Validation
+
+```bash
+npm run env
+npm test
 ```
 
 ## Credentials
@@ -129,3 +144,9 @@ Those are possible later, but LinkedIn’s access model is much tighter than X a
 
 - `setup/OFFICIAL_API_SETUP.md` — exact app, OAuth, scope, and posting setup
 - `research/ACCESS_NOTES.md` — practical notes on LinkedIn’s read/write boundaries
+
+## Goals
+
+- Keep member posting dependable through the official path.
+- Make org-posting and auth requirements explicit.
+- Preserve a small CLI that an agent can operate without hidden workflow glue.

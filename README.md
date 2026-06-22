@@ -1,17 +1,3 @@
----
-doc_schema: "doc-frontmatter-v1"
-doc_id: "lbot/README"
-doc_type: "readme"
-doc_status: "active"
-title: "lbot — LinkedIn Automation Client"
-description: "Official LinkedIn posting CLI for auth bootstrap, text posts, and single-image posts."
-memory_eligible: false
-memory_priority: "low"
-doc_tags:
-  - "domain:social-media"
-  - "tool:lbot"
-  - "type:readme"
----
 # lbot — LinkedIn Automation Client
 
 Minimal LinkedIn automation client for official API posting.
@@ -61,7 +47,7 @@ npm test
 
 ## Credentials
 
-Set these in `georgerepo/.tokens/linkedin.env` or `lbot/.env`:
+Set these in `lbot/.env`, a private env file referenced by your shell, or the shell environment:
 
 ```env
 LINKEDIN_CLIENT_ID=...
